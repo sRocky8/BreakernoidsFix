@@ -1,4 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -11,10 +17,19 @@ namespace BreakernoidsGL
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        Texture2D bgTexture;
+        Paddle paddle;
+        Ball ball;
+        List<Block> blocks = new List<Block>();
+        Block deleteBlock;
+        int collisionFrames;
+        bool blockCollision = false;
         
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferWidth = 1024;
+            graphics.PreferredBackBufferHeight = 768;
             Content.RootDirectory = "Content";
         }
 
@@ -41,6 +56,23 @@ namespace BreakernoidsGL
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            bgTexture = Content.Load<Texture2D>("bg");
+            
+            paddle = new Paddle(this);
+            paddle.LoadContent();
+            paddle.position = new Vector2(512, 740);
+
+            ball = new Ball(this);
+            ball.LoadContent();
+            ball.position = new Vector2(512, paddle.position.Y - ball.Height - paddle.Height);
+
+            for (int i = 0; i < 15; i++)
+            {
+                Block tempBlock = new Block(this);
+                tempBlock.LoadContent();
+                tempBlock.position = new Vector2(64 + i * 64, 200);
+                blocks.Add(tempBlock);
+            }
         }
 
         /// <summary>
@@ -63,7 +95,11 @@ namespace BreakernoidsGL
                 Exit();
 
             // TODO: Add your update logic here
-
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            paddle.Update(deltaTime);
+            ball.Update(deltaTime);
+            CheckCollisions();
+            LoseLife();
             base.Update(gameTime);
         }
 
@@ -73,11 +109,108 @@ namespace BreakernoidsGL
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Blue);
+
 
             // TODO: Add your drawing code here
+            spriteBatch.Begin();
+            //Draw all sprites here
+            spriteBatch.Draw(bgTexture, new Vector2(0, 0), Color.White);
+            paddle.Draw(spriteBatch);
+            ball.Draw(spriteBatch);
+            foreach (Block b in blocks)
+            {
+                b.Draw(spriteBatch);
+            }
+            spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        protected void CheckCollisions()
+        {
+            float radius = ball.Width / 2;
+            foreach (Block b in blocks)
+            {
+                if ((ball.position.X > (b.position.X - radius - b.Width / 2))
+                   && (ball.position.X < (b.position.X + radius + b.Width / 2)))
+                {
+                    ball.direction.X = ball.direction.X * -1;
+                    blockCollision = true;
+                    if (blockCollision == true)
+                    {
+                        blocks.Remove(b);
+                        blockCollision = false;
+                    }
+                }
+                if (ball.position.Y < (b.position.Y + radius + b.Height / 2)
+                   && (ball.position.Y > (b.position.Y - radius - b.Height / 2)))
+                {
+                    ball.direction.Y = ball.direction.Y * -1;
+                    blockCollision = true;
+                    if (blockCollision == true)
+                    {
+                        blocks.Remove(b);
+                        blockCollision = false;
+                    }
+                }
+            }
+
+            
+
+            if (collisionFrames == 0)
+            {
+                if (ball.position.X > (paddle.position.X - radius - (paddle.Width / 3) + (paddle.Width / 6)) && (ball.position.Y < paddle.position.Y)
+                    && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 8)))
+                {
+                    ball.direction = Vector2.Reflect(ball.direction, new Vector2(0.196f, -0.981f));
+                    collisionFrames = 20;
+                }
+                else if (ball.position.X < paddle.position.X + radius + (paddle.Width / 3) + (paddle.Width / 6) && (ball.position.Y < paddle.position.Y)
+                    && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 8)))
+                {
+                    ball.direction = Vector2.Reflect(ball.direction, new Vector2(-0.196f, -0.981f));
+                    collisionFrames = 20;
+                }
+                else if (ball.position.X < (paddle.position.X - radius - (paddle.Width / 3) + (paddle.Width / 6))
+                    && ball.position.X > paddle.position.X + radius + (paddle.Width / 3) + (paddle.Width / 6))
+                {
+                    ball.direction = Vector2.Reflect(ball.direction, new Vector2(0, -1));
+                    collisionFrames = 20;
+                }
+            }
+            
+            while(collisionFrames > 0)
+            {
+                --collisionFrames;
+            }
+
+            if (Math.Abs(ball.position.X - 32) < radius)
+            {
+                ball.direction.X = ball.direction.X * -1;
+            }
+            else if (Math.Abs(ball.position.X - 992) < radius)
+            {
+                //right wall collision
+                ball.direction.X = ball.direction.X * -1;
+            }
+            else if (Math.Abs(ball.position.Y - 32) < radius)
+            {
+                //collision with top
+                ball.direction.Y = ball.direction.Y * -1;
+            }
+        }
+        
+        protected void LoseLife()
+        {
+            float radius = ball.Width / 2;
+            if (ball.position.Y > 768 + radius)
+            {
+                paddle.position = new Vector2(512, 740);
+
+                ball.position = new Vector2(512, paddle.position.Y - ball.Height - paddle.Height);
+                ball.direction = new Vector2(0.707f, -0.707f);
+            }
         }
     }
 }
