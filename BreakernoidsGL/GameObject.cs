@@ -19,7 +19,7 @@ namespace BreakernoidsGL
         }
         public float Height
         {
-            get { return texture.Width; }
+            get { return texture.Height; }
         }
 
         public GameObject(Game myGame)

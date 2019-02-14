@@ -133,54 +133,62 @@ namespace BreakernoidsGL
             foreach (Block b in blocks)
             {
                 if ((ball.position.X > (b.position.X - radius - b.Width / 2))
-                   && (ball.position.X < (b.position.X + radius + b.Width / 2)))
+                   && (ball.position.X < (b.position.X + radius + b.Width / 2))
+                   && (ball.position.Y < (b.position.Y + radius + b.Height / 2))
+                   && (ball.position.Y > (b.position.Y - radius - b.Height / 2)))
                 {
                     ball.direction.X = ball.direction.X * -1;
                     blockCollision = true;
-                    if (blockCollision == true)
-                    {
-                        blocks.Remove(b);
-                        blockCollision = false;
-                    }
+                    //if (blockCollision == true)
+                    //{
+                    //    blocks.Remove(b);
+                    //    blockCollision = false;
+                    //}
                 }
                 if (ball.position.Y < (b.position.Y + radius + b.Height / 2)
                    && (ball.position.Y > (b.position.Y - radius - b.Height / 2)))
                 {
                     ball.direction.Y = ball.direction.Y * -1;
                     blockCollision = true;
-                    if (blockCollision == true)
-                    {
-                        blocks.Remove(b);
-                        blockCollision = false;
-                    }
+                    //if (blockCollision == true)
+                    //{
+                    //    blocks.Remove(b);
+                    //    blockCollision = false;
+                    //}
                 }
             }
 
-            
+
 
             if (collisionFrames == 0)
             {
-                if (ball.position.X > (paddle.position.X - radius - (paddle.Width / 3) + (paddle.Width / 6)) && (ball.position.Y < paddle.position.Y)
-                    && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 8)))
+                if (ball.position.X > (paddle.position.X - radius + (paddle.Width / 6)) 
+                    && (ball.position.X < (paddle.position.X + radius + (paddle.Width / 2)) 
+                    && (ball.position.Y < paddle.position.Y)
+                    && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 2))))
                 {
                     ball.direction = Vector2.Reflect(ball.direction, new Vector2(0.196f, -0.981f));
                     collisionFrames = 20;
                 }
-                else if (ball.position.X < paddle.position.X + radius + (paddle.Width / 3) + (paddle.Width / 6) && (ball.position.Y < paddle.position.Y)
-                    && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 8)))
+                else if (ball.position.X < paddle.position.X + radius - (paddle.Width / 6)
+                    && (ball.position.X > (paddle.position.X - radius - (paddle.Width / 2))
+                    && (ball.position.Y < paddle.position.Y)
+                    && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 2))))
                 {
                     ball.direction = Vector2.Reflect(ball.direction, new Vector2(-0.196f, -0.981f));
                     collisionFrames = 20;
                 }
-                else if (ball.position.X < (paddle.position.X - radius - (paddle.Width / 3) + (paddle.Width / 6))
-                    && ball.position.X > paddle.position.X + radius + (paddle.Width / 3) + (paddle.Width / 6))
+                else if (ball.position.X > (paddle.position.X - radius - (paddle.Width / 6))
+                    && (ball.position.X < paddle.position.X + radius + (paddle.Width / 6))
+                    && (ball.position.Y < paddle.position.Y)
+                    && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 2)))
                 {
                     ball.direction = Vector2.Reflect(ball.direction, new Vector2(0, -1));
                     collisionFrames = 20;
                 }
             }
-            
-            while(collisionFrames > 0)
+
+            while (collisionFrames > 0)
             {
                 --collisionFrames;
             }
