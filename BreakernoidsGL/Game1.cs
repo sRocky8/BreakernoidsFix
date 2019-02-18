@@ -132,33 +132,43 @@ namespace BreakernoidsGL
             float radius = ball.Width / 2;
             foreach (Block b in blocks)
             {
-                if ((ball.position.X > (b.position.X - radius - b.Width / 2))
+                //left
+                if (ball.position.X < b.position.X + radius - (b.Width / 20)
+                    && (ball.position.X > (b.position.X - radius - (b.Width / 2))
+                    && (ball.position.Y < (b.position.Y + radius + b.Height / 3))
+                    && (ball.position.Y > (b.position.Y - radius - b.Height / 3))))
+                {
+                    ball.direction.X = ball.direction.X * -1;
+                    blockCollision = true;
+                    deleteBlock = b;
+                }
+                //right
+                else if (ball.position.X > (b.position.X - radius + b.Width / 20)
+                    && (ball.position.X < (b.position.X + radius + b.Width / 2)
+                    && (ball.position.Y < (b.position.Y + radius + b.Height / 3))
+                    && (ball.position.Y > (b.position.Y - radius - b.Height / 3))))
+                {
+                    ball.direction.X = ball.direction.X * -1;
+                    blockCollision = true;
+                    deleteBlock = b;
+                }
+                //up and down
+                else if ((ball.position.X > (b.position.X - radius - b.Width / 2))
                    && (ball.position.X < (b.position.X + radius + b.Width / 2))
                    && (ball.position.Y < (b.position.Y + radius + b.Height / 2))
                    && (ball.position.Y > (b.position.Y - radius - b.Height / 2)))
                 {
-                    ball.direction.X = ball.direction.X * -1;
-                    blockCollision = true;
-                    //if (blockCollision == true)
-                    //{
-                    //    blocks.Remove(b);
-                    //    blockCollision = false;
-                    //}
-                }
-                if (ball.position.Y < (b.position.Y + radius + b.Height / 2)
-                   && (ball.position.Y > (b.position.Y - radius - b.Height / 2)))
-                {
                     ball.direction.Y = ball.direction.Y * -1;
                     blockCollision = true;
-                    //if (blockCollision == true)
-                    //{
-                    //    blocks.Remove(b);
-                    //    blockCollision = false;
-                    //}
+                    deleteBlock = b;
                 }
             }
 
-
+            if (deleteBlock != null && blockCollision == true)
+            {
+                blocks.Remove(deleteBlock);
+                blockCollision = false;
+            }
 
             if (collisionFrames == 0)
             {
