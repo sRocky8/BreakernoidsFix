@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 namespace BreakernoidsGL{
     public class Ball : GameObject
     {
-        private readonly int speed = 350;
+        private readonly int speed = 400;
         public Vector2 direction = new Vector2(0.707f, -0.707f);
 
         public Ball(Game myGame):

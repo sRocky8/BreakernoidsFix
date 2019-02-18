@@ -66,12 +66,24 @@ namespace BreakernoidsGL
             ball.LoadContent();
             ball.position = new Vector2(512, paddle.position.Y - ball.Height - paddle.Height);
 
-            for (int i = 0; i < 15; i++)
+            int[,] blockLayout = new int[,]
             {
-                Block tempBlock = new Block(this);
-                tempBlock.LoadContent();
-                tempBlock.position = new Vector2(64 + i * 64, 200);
-                blocks.Add(tempBlock);
+                {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+                {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3},
+                {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+            };
+
+            for (int i = 0; i < blockLayout.GetLength(0); i++)
+            {
+                for (int j = 0; j < blockLayout.GetLength(1); j++) {
+                    Block tempBlock = new Block((BlockColor)blockLayout[i, j], this);
+                    tempBlock.LoadContent();
+                    tempBlock.position = new Vector2(64 + (j * 64), 100 + (i * 32));
+                    blocks.Add(tempBlock);
+                }
             }
         }
 
@@ -163,6 +175,8 @@ namespace BreakernoidsGL
                     deleteBlock = b;
                 }
             }
+
+
 
             if (deleteBlock != null && blockCollision == true)
             {
