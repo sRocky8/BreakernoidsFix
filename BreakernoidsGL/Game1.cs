@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 namespace BreakernoidsGL
 {
@@ -24,6 +25,9 @@ namespace BreakernoidsGL
         Block deleteBlock;
         int collisionFrames;
         bool blockCollision = false;
+        SoundEffect ballBounceSFX;
+        SoundEffect ballHitSFX;
+        SoundEffect deathSFX;
         
         public Game1()
         {
@@ -65,6 +69,10 @@ namespace BreakernoidsGL
             ball = new Ball(this);
             ball.LoadContent();
             ball.position = new Vector2(512, paddle.position.Y - ball.Height - paddle.Height);
+
+            ballBounceSFX = Content.Load<SoundEffect>("ball_bounce");
+            ballHitSFX = Content.Load<SoundEffect>("ball_hit");
+            deathSFX = Content.Load<SoundEffect>("death");
 
             int[,] blockLayout = new int[,]
             {
@@ -150,9 +158,13 @@ namespace BreakernoidsGL
                     && (ball.position.Y < (b.position.Y + radius + b.Height / 3))
                     && (ball.position.Y > (b.position.Y - radius - b.Height / 3))))
                 {
+                    ballHitSFX.Play();
                     ball.direction.X = ball.direction.X * -1;
-                    blockCollision = true;
-                    deleteBlock = b;
+                    if (b.OnHit() == true)
+                    {
+                        blockCollision = true;
+                        deleteBlock = b;
+                    }
                 }
                 //right
                 else if (ball.position.X > (b.position.X - radius + b.Width / 20)
@@ -160,9 +172,13 @@ namespace BreakernoidsGL
                     && (ball.position.Y < (b.position.Y + radius + b.Height / 3))
                     && (ball.position.Y > (b.position.Y - radius - b.Height / 3))))
                 {
+                    ballHitSFX.Play();
                     ball.direction.X = ball.direction.X * -1;
-                    blockCollision = true;
-                    deleteBlock = b;
+                    if (b.OnHit() == true)
+                    {
+                        blockCollision = true;
+                        deleteBlock = b;
+                    }
                 }
                 //up and down
                 else if ((ball.position.X > (b.position.X - radius - b.Width / 2))
@@ -170,9 +186,13 @@ namespace BreakernoidsGL
                    && (ball.position.Y < (b.position.Y + radius + b.Height / 2))
                    && (ball.position.Y > (b.position.Y - radius - b.Height / 2)))
                 {
+                    ballHitSFX.Play();
                     ball.direction.Y = ball.direction.Y * -1;
-                    blockCollision = true;
-                    deleteBlock = b;
+                    if (b.OnHit() == true)
+                    {
+                        blockCollision = true;
+                        deleteBlock = b;
+                    }
                 }
             }
 
@@ -191,6 +211,7 @@ namespace BreakernoidsGL
                     && (ball.position.Y < paddle.position.Y)
                     && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 2))))
                 {
+                    ballBounceSFX.Play();
                     ball.direction = Vector2.Reflect(ball.direction, new Vector2(0.196f, -0.981f));
                     collisionFrames = 20;
                 }
@@ -199,6 +220,7 @@ namespace BreakernoidsGL
                     && (ball.position.Y < paddle.position.Y)
                     && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 2))))
                 {
+                    ballBounceSFX.Play();
                     ball.direction = Vector2.Reflect(ball.direction, new Vector2(-0.196f, -0.981f));
                     collisionFrames = 20;
                 }
@@ -207,6 +229,7 @@ namespace BreakernoidsGL
                     && (ball.position.Y < paddle.position.Y)
                     && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 2)))
                 {
+                    ballBounceSFX.Play();
                     ball.direction = Vector2.Reflect(ball.direction, new Vector2(0, -1));
                     collisionFrames = 20;
                 }
@@ -219,16 +242,19 @@ namespace BreakernoidsGL
 
             if (Math.Abs(ball.position.X - 32) < radius)
             {
+                ballBounceSFX.Play();
                 ball.direction.X = ball.direction.X * -1;
             }
             else if (Math.Abs(ball.position.X - 992) < radius)
             {
                 //right wall collision
+                ballBounceSFX.Play();
                 ball.direction.X = ball.direction.X * -1;
             }
             else if (Math.Abs(ball.position.Y - 32) < radius)
             {
                 //collision with top
+                ballBounceSFX.Play();
                 ball.direction.Y = ball.direction.Y * -1;
             }
         }
@@ -238,6 +264,7 @@ namespace BreakernoidsGL
             float radius = ball.Width / 2;
             if (ball.position.Y > 768 + radius)
             {
+                deathSFX.Play();
                 paddle.position = new Vector2(512, 740);
 
                 ball.position = new Vector2(512, paddle.position.Y - ball.Height - paddle.Height);
