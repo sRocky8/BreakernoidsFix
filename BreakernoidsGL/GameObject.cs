@@ -13,6 +13,7 @@ namespace BreakernoidsGL
         protected Texture2D texture;
         protected Game game;
         public Vector2 position = Vector2.Zero;
+        public Rectangle boundingRect;
         public float Width
         {
             get { return texture.Width; }
@@ -20,6 +21,10 @@ namespace BreakernoidsGL
         public float Height
         {
             get { return texture.Height; }
+        }
+        public Rectangle BoundingRect
+        {
+            get { return new Rectangle((int)position.X, (int)position.Y, (int)Width, (int)Height); }
         }
 
         public GameObject(Game myGame)

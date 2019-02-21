@@ -6,6 +6,7 @@ namespace BreakernoidsGL{
     {
         private readonly int speed = 400;
         public Vector2 direction = new Vector2(0.707f, -0.707f);
+        public bool caught;
 
         public Ball(Game myGame):
             base(myGame)
@@ -15,10 +16,12 @@ namespace BreakernoidsGL{
 
         public override void Update(float deltaTime)
         {
-//            position.X = MathHelper.Clamp(position.X, 32 + (texture.Width / 2), 992 - (texture.Width / 2));
-            position += direction * speed * deltaTime;
-
+            if (caught == false)
+            {
+                position += direction * speed * deltaTime;
+            }
             base.Update(deltaTime);
+
         }
     }
 }
