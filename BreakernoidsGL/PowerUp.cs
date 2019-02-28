@@ -40,6 +40,11 @@ namespace BreakernoidsGL
         {
             position += speed * direction * deltaTime;
 
+            if(position.Y > 768)
+            {
+                remove = true;
+            }
+
             base.Update(deltaTime);
         }
 

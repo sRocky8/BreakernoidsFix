@@ -359,7 +359,7 @@ namespace BreakernoidsGL
         {
             for (int i = powerUps.Count - 1; i >= 0; i--)
             {
-                if (powerUps[i].remove)
+                if (powerUps[i].remove == true)
                 {
                     powerUps.RemoveAt(i);
                 }
