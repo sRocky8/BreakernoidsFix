@@ -36,11 +36,13 @@ namespace BreakernoidsGL
             if(paddlePowerUp == true)
             {
                 textureName = "paddle_long";
+                LoadContent();
                 return;
             }
             else
             {
                 textureName = "paddle";
+                LoadContent();
                 return;
             }
         }
