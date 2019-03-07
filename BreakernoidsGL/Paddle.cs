@@ -17,6 +17,7 @@ namespace BreakernoidsGL
 
         public override void Update(float deltaTime)
         {
+
             KeyboardState keyState = Keyboard.GetState();
             if (keyState.IsKeyDown(Keys.Left))
             {
@@ -28,6 +29,20 @@ namespace BreakernoidsGL
             }
             position.X = MathHelper.Clamp(position.X, 32 + (texture.Width /2), 992 - (texture.Width / 2));
             base.Update(deltaTime);
+        }
+
+        public void PaddleSize(bool paddlePowerUp)
+        {
+            if(paddlePowerUp == true)
+            {
+                textureName = "paddle_long";
+                return;
+            }
+            else
+            {
+                textureName = "paddle";
+                return;
+            }
         }
     }
 }

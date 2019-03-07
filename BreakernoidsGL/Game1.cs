@@ -23,7 +23,6 @@ namespace BreakernoidsGL
         Ball ball;
         List<Block> blocks = new List<Block>();
         Block deleteBlock;
-        int collisionFrames;
         bool blockCollision = false;
         SoundEffect ballBounceSFX;
         SoundEffect ballHitSFX;
@@ -32,6 +31,9 @@ namespace BreakernoidsGL
         Random random = new Random();
         double powerUpProbablility = 0.2f;
         SoundEffect powerUpSFX;
+        List<Ball> balls = new List<Ball>();
+        public float paddleXPosBU;
+        public float paddleXPosAU;
 
         bool powerUpBOn;
         bool powerUpCOn;
@@ -125,7 +127,9 @@ namespace BreakernoidsGL
 
             // TODO: Add your update logic here
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            paddleXPosBU = paddle.position.X;
             paddle.Update(deltaTime);
+            paddleXPosAU = paddle.position.X;
             ball.Update(deltaTime);
             foreach (PowerUp pu in powerUps)
             {
@@ -137,6 +141,7 @@ namespace BreakernoidsGL
             }
             CheckForPowerUps();
             RemovePowerUps();
+            
             CheckCollisions();
             LoseLife();
             base.Update(gameTime);
@@ -156,7 +161,12 @@ namespace BreakernoidsGL
             //Draw all sprites here
             spriteBatch.Draw(bgTexture, new Vector2(0, 0), Color.White);
             paddle.Draw(spriteBatch);
+            paddle.PaddleSize(powerUpPOn);
             ball.Draw(spriteBatch);
+            foreach (Ball ball in balls)
+            {
+                ball.Draw(spriteBatch);
+            }
             foreach (Block b in blocks)
             {
                 b.Draw(spriteBatch);
@@ -172,6 +182,12 @@ namespace BreakernoidsGL
 
         protected void CheckCollisions()
         {
+            KeyboardState keyState = Keyboard.GetState();
+            if (keyState.IsKeyDown(Keys.Space))
+            {
+                powerUpCOn = false;
+            }
+
             float radius = ball.Width / 2;
             foreach (Block b in blocks)
             {
@@ -231,80 +247,95 @@ namespace BreakernoidsGL
                 blockCollision = false;
             }
 
-            if (collisionFrames == 0)
-            {
-                if (ball.position.X > (paddle.position.X - radius + (paddle.Width / 6)) 
-                    && (ball.position.X < (paddle.position.X + radius + (paddle.Width / 2)) 
-                    && (ball.position.Y < paddle.position.Y)
-                    && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 2))))
-                {
-                    if (powerUpCOn != true) {
-                        ballBounceSFX.Play();
-                        ball.direction = Vector2.Reflect(ball.direction, new Vector2(0.196f, -0.981f));
-                        collisionFrames = 20;
-                    }
-                    else
-                    {
-                        ball.caught = true;
-                    }
-                }
-                else if (ball.position.X < paddle.position.X + radius - (paddle.Width / 6)
-                    && (ball.position.X > (paddle.position.X - radius - (paddle.Width / 2))
-                    && (ball.position.Y < paddle.position.Y)
-                    && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 2))))
-                {
-                    
-                    if (powerUpCOn != true)
-                    {
-                        ballBounceSFX.Play();
-                        ball.direction = Vector2.Reflect(ball.direction, new Vector2(-0.196f, -0.981f));
-                        collisionFrames = 20;
-                    }
-                    else
-                    {
-                        ball.caught = true;
-                    }
-                }
-                else if (ball.position.X > (paddle.position.X - radius - (paddle.Width / 6))
-                    && (ball.position.X < paddle.position.X + radius + (paddle.Width / 6))
-                    && (ball.position.Y < paddle.position.Y)
-                    && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 2)))
-                {
-                    if (powerUpCOn != true)
-                    {
-                        ballBounceSFX.Play();
-                        ball.direction = Vector2.Reflect(ball.direction, new Vector2(0, -1));
-                        collisionFrames = 20;
-                    }
-                    else
-                    {
-                        ball.caught = true;
-                    }
-                }
-            }
 
-            while (collisionFrames > 0)
-            {
-                --collisionFrames;
-            }
+            //foreach (Ball ball in balls)
+            //{
+                if (ball.collisionFrames == 0)
+                {
+                    if (ball.position.X > (paddle.position.X - radius + (paddle.Width / 6))
+                        && (ball.position.X < (paddle.position.X + radius + (paddle.Width / 2))
+                        && (ball.position.Y < paddle.position.Y)
+                        && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 2))))
+                    {
+                        if (powerUpCOn != true)
+                        {
+                            ballBounceSFX.Play();
+                            ball.direction = Vector2.Reflect(ball.direction, new Vector2(0.196f, -0.981f));
+                            if (ball.collisionFrames == 0)
+                            {
+                                ball.collisionFrames = 20;
+                            }
+                        }
+                        else
+                        {
+                            ball.caught = true;
+                        }
+                    }
+                    else if (ball.position.X < paddle.position.X + radius - (paddle.Width / 6)
+                        && (ball.position.X > (paddle.position.X - radius - (paddle.Width / 2))
+                        && (ball.position.Y < paddle.position.Y)
+                        && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 2))))
+                    {
 
-            if (Math.Abs(ball.position.X - 32) < radius)
-            {
-                ballBounceSFX.Play();
-                ball.direction.X = ball.direction.X * -1;
-            }
-            else if (Math.Abs(ball.position.X - 992) < radius)
-            {
-                //right wall collision
-                ballBounceSFX.Play();
-                ball.direction.X = ball.direction.X * -1;
-            }
-            else if (Math.Abs(ball.position.Y - 32) < radius)
-            {
-                //collision with top
-                ballBounceSFX.Play();
-                ball.direction.Y = ball.direction.Y * -1;
-            }
+                        if (powerUpCOn != true)
+                        {
+                            ballBounceSFX.Play();
+                            ball.direction = Vector2.Reflect(ball.direction, new Vector2(-0.196f, -0.981f));
+                            if (ball.collisionFrames == 0)
+                            {
+                                ball.collisionFrames = 20;
+                            }
+                        }
+                        else
+                        {
+                            ball.caught = true;
+                        }
+                    }
+                    else if (ball.position.X > (paddle.position.X - radius - (paddle.Width / 6))
+                        && (ball.position.X < paddle.position.X + radius + (paddle.Width / 6))
+                        && (ball.position.Y < paddle.position.Y)
+                        && (ball.position.Y > (paddle.position.Y - radius - paddle.Height / 2)))
+                    {
+                        if (powerUpCOn != true)
+                        {
+                            ballBounceSFX.Play();
+                            ball.direction = Vector2.Reflect(ball.direction, new Vector2(0, -1));
+                            if (ball.collisionFrames == 0)
+                            {
+                                ball.collisionFrames = 20;
+                            }
+                        }
+                        else
+                        {
+                            ball.caught = true;
+                        }
+                    }
+                    if (ball.caught == true)
+                    {
+                        ball.position.X += paddleXPosAU - paddleXPosBU;
+                    }
+                }
+
+            //}
+
+                if (Math.Abs(ball.position.X - 32) < radius)
+                {
+                    ballBounceSFX.Play();
+                    ball.direction.X = ball.direction.X * -1;
+                }
+                else if (Math.Abs(ball.position.X - 992) < radius)
+                {
+                    //right wall collision
+                    ballBounceSFX.Play();
+                    ball.direction.X = ball.direction.X * -1;
+                }
+                else if (Math.Abs(ball.position.Y - 32) < radius)
+                {
+                    //collision with top
+                    ballBounceSFX.Play();
+                    ball.direction.Y = ball.direction.Y * -1;
+                }
+            
         }
         
         protected void LoseLife()
@@ -316,6 +347,10 @@ namespace BreakernoidsGL
                 powerUpBOn = false;
                 powerUpCOn = false;
                 powerUpPOn = false;
+                foreach(PowerUp pu in powerUps)
+                {
+                    pu.remove = true;
+                }
                 RemovePowerUps();
 
                 paddle.position = new Vector2(512, 740);
@@ -342,6 +377,7 @@ namespace BreakernoidsGL
                 Rectangle puRect = pu.BoundingRect;
                 if(puRect.Intersects(paddleRect) == true){
                     ActivatePowerUps(pu);
+                    pu.remove = true;
                 }
             }
         }
@@ -352,6 +388,10 @@ namespace BreakernoidsGL
             if(powerUp.thisPowerUp == PowerUpTypes.powerup_c && powerUpCOn != true)
             {
                 powerUpCOn = true;
+            }
+            if(powerUp.thisPowerUp == PowerUpTypes.powerup_p && powerUpPOn != true)
+            {
+                powerUpPOn = true;
             }
         }
 
